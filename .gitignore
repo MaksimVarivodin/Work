@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+Polya_kursovoj/Match_course_proj/.vs/Match_course_proj/v14/.suo
+*.sdf
+*.vcxproj
+*.filters
+*.opensdf
+*.sln
