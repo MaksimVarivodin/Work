@@ -36,3 +36,10 @@ Polya_kursovoj/Match_course_proj/.vs/Match_course_proj/v14/.suo
 *.filters
 *.opensdf
 *.sln
+*.ilk
+*.pdb
+*.enc
+*.log
+*.tlog
+*.idb
+Polya_kursovoj/Match_course_proj/Match/void
