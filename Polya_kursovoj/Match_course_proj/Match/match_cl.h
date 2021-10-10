@@ -104,7 +104,7 @@ class Match
 	static void add_match(const int& Case = 1);
 	static void menu_add();
 	static void del_match();
-	static void print(const int & Case = 1);
+	static void print();
 	// функция окрашивающая принимаемую строку в серый
 	friend void С_gray(const string& a);
 	// функция которая показывает какую строку выбрали

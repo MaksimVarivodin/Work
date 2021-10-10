@@ -189,17 +189,54 @@ void Match::del_match()
 	Match::resize(Match::MATCH_COUNT - 1);
 }
 //  печать
-void Match::print(const int &Case)
+void Match::print()
 {
-	int i = 0;
-	if (Case == 2)i = Match::MATCH_COUNT;
+	int i = 0, c = 0, c2 = 0, f = 0;
+	bool norm_enter = false;
+	auto* menu = new string[3]{ "Выберите вид печати: ", "1 - обычная",	"2 - по заданному номеру" },
+		*menu2 = new string[3]{ "Выберите порядок:","1 - прямой","2 - обратный" };
+	auto str = "Введите номер матча, который необходимо вывести: ";
+	c = Menu_show(menu, 3);
+	switch (c) {
+	case 1:
+		system("cls");
+		c2 = Menu_show(menu2, 3);
+		switch (c2) {
+		case 2:
+			i = Match::MATCH_COUNT;
+			break;
+		default:
+			i = 0;
+			break;
+		}
+		break;
+	case 2:
+		system("cls");
+		cout << str;
+		while (!norm_enter) {
+			Enter_check(f);
+			if (f > 0)
+			{
+				norm_enter = true;
+			}
+			else {
+				cout << "Введите число больше" << endl;
+			}
+		}
+		c2 = 1;
+		i = 0;
+		break;
+	}
+	system("cls");
 	Match::shapka();// печатаем заголовок таблички
-	for (; Case == 2 ? i > 0 : i < Match::MATCH_COUNT; Case == 2 ? i-- : i++)
+	for (; c2 == 2 ? i > 0 : i < Match::MATCH_COUNT; c2 == 2 ? i-- : i++)
 	{
-		cout << Match::MATCH_POINTER[i];
+		if ((MATCH_POINTER[i].index_numb == f && c == 2) || c == 1)
+			cout << Match::MATCH_POINTER[i];
 	}
 	cout << endl << "Общее количество матчей: " << Match::MATCH_COUNT << endl;
-
+	delete[] menu;
+	delete[] menu2;
 }
 // перегруженный оператор вывода
 ostream & operator<< (ostream& out, Match& a) {
