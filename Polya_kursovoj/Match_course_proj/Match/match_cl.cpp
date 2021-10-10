@@ -231,6 +231,43 @@ void Match::del_match()
 {
 	Match::resize(Match::MATCH_COUNT - 1);
 }
+void Match::menu_del()
+{
+	int s = 3;
+	int q = 0;
+	int s2 = MATCH_COUNT;
+	bool norm_enter = false;
+	auto* menu = new string[s]{ "Выберите количество добаляемых элементов: " ,
+		"1 - ПО умолчанию, автоматически чистит список",
+		"2 - Ввод вручную количества удаляемых елементов"
+	};
+	string str = "Введите количество элементов: ";
+	switch (Menu_show(menu, s)) {
+	case 1:
+		system("cls");
+		for (int i = 0; i < s2; i++)
+			del_match();
+		break;
+	case 2:		
+			cout << str;
+			while (!norm_enter) {
+				Enter_check(q);
+				if (q > 0)
+				{
+					norm_enter = true;
+				}
+				else {
+					cout << "Введите число больше" << endl;
+				}
+			}
+
+		for (int i = 0; i < q; i++)
+				add_match();
+			
+		break;
+	}
+	delete[] menu;
+}
 //  печать
 void Match::print()
 {

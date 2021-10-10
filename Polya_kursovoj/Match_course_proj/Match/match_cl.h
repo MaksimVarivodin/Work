@@ -102,8 +102,9 @@ class Match
 	Match& operator=(const Match& other);
 	static void shapka();
 	static void add_match(const int& Case = 1);
-	static void menu_add();
+	static void menu_add();	
 	static void del_match();
+	static void menu_del();
 	static void print();
 	// функция окрашивающая принимаемую строку в серый
 	friend void С_gray(const string& a);
