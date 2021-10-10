@@ -31,14 +31,16 @@ void С_gray(const string& a) {
 	SetConsoleTextAttribute(hConsole, (WORD)((Magenta << 4) |Black));
 }
 // функция которая показывает какую строку выбрали
-void choose(const string& a) {
+void Choose(const string& a) {
 	cout << setw(11) << "--> ";
 	С_gray(a);
 	cout << endl;
 }
 // фунция вывода любого меню(ЮИ)
 int Menu_show(const string* arr, const int & size) {
-
+	HANDLE hCons = GetStdHandle(STD_OUTPUT_HANDLE);//получение хендла
+	CONSOLE_CURSOR_INFO cursor = { 100,false };//число от 1 до 100 размер курсора в процентах; false\true - видимость
+	SetConsoleCursorInfo(hCons, &cursor);
 	bool done = false;
 	int choice;
 	int pos = 1;
@@ -51,7 +53,7 @@ int Menu_show(const string* arr, const int & size) {
 		int i = 1;
 		for (; i < pos; i++)
 			cout << setw(11 + arr[i].length()) << arr[i] << endl;
-		choose(arr[pos]);
+		Choose(arr[pos]);
 		i++;
 		for (; i < size; i++)
 			cout << setw(11 + arr[i].length()) << arr[i] << endl;

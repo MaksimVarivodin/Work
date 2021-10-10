@@ -181,12 +181,12 @@ void Match::menu_add()
 	int q = 0;
 	bool norm_enter = false;
 	auto* menu = new string[s]{ "Выберите количество добаляемых элементов: " ,
-		"1 - ПО умолчанию, автоматически добавляется 20 экзепляров",
-		"2 - Ввод вручную, или количества, или добавление одного, но со своими параметрами"
+		"1 - ПО умолчанию, \nавтоматически добавляется 20 экзепляров",
+		"2 - Ввод вручную, \nили количества, или добавление одного, но со своими параметрами"
 	};
 	auto* menu2 = new string[s]{ "Выберите что хотите ввести вручную: " ,
 		"1 - Количество добавляемых элементов",
-		"2 - Добавить один элемент и ввести все его параметры"
+		"2 - Добавить один элемент и ввести \nвсе его параметры"
 	};
 	string str = "Введите количество элементов: ";
 	switch (Menu_show(menu, s)) {
@@ -268,9 +268,141 @@ void Match::menu_del()
 	}
 	delete[] menu;
 }
+void Match::write( Match & a, const string & b)
+{
+	// cout << "/ # |           Команды            | Счет  |  Минуты  |  Победитель | Голы  \\" << endl;
+
+	const int size = 12;
+	// размеры колонок
+	int COL[]{ 4, 33, 9, 12, 33, 9 };
+	// размеры текстов
+
+	string Nichja = "Ничья";
+	int txt[size]{
+		to_string(a.index_numb).length(),// номер
+		(a.team1).length(),// длина комманды 1		
+		to_string(a.team1_count).length(),// счет первой команды 		
+		a.team1_count>0 ? 2 * a.team1_count + a.team1_count - 1 : 0,// минуты		
+		a.first_team_win ? (a.team1).length() : a.second_team_win ? (a.team2).length() : Nichja.length(), // победитель
+		to_string(a.teams_count).length(),//количество голов
+		3,
+		(a.team2).length(),// длина комманды 2
+		to_string(a.team2_count).length(),// счет второй команды
+		a.team2_count > 0 ? 2 * a.team2_count + a.team2_count - 1 : 0, // минуты
+		14, // победитель
+		8//количество голов
+	};
+	// размер сетва для каждой колонки
+	int col[size]{};
+	int i = 0;
+	for (int &var : col)
+	{
+		var = a.col_count(txt[i], COL[i % 6]);
+		i++;
+	}
+	// формирование строки минут
+	string buf1 = "";
+	i = 0;
+	for each (int var in a.team1_minutes)
+	{
+		if (var < 10)
+		{
+			buf1 += "0";
+		}
+		buf1 += to_string(var);
+		if (i < a.team1_minutes.size() - 1)
+		{
+			buf1 += ":";
+		}
+		i++;
+	}
+	string buf2 = "";
+	i = 0;
+	for each (int var in a.team2_minutes)
+	{
+		if (var< 10)
+			buf2 += "0";
+		buf2 += to_string(var);
+		if (i < a.team2_minutes.size() - 1)
+		{
+			buf2 += ":";
+		}
+		i++;
+	}
+	string text[size]{
+		to_string(a.index_numb),// номер
+		a.team1,// комманда 1
+		to_string(a.team1_count),// счет первой команды 
+		buf1,  // минуты
+		a.first_team_win ? (a.team1) : a.second_team_win ? (a.team2) : Nichja, // победитель
+		to_string(a.teams_count),//количество голов
+		"   ", // номер
+		a.team2,// комманда 2
+		to_string(a.team2_count),// счет второй команды
+		buf2,  // минуты
+		"             ", // победитель
+		"       "//количество голов
+	};	
+	ifstream CIN;
+	ofstream COUT;
+
+	COUT.open(b, ios::app | ios::out);
+	for (int i = 0; i < size - 6; i++)
+		COUT << "|" << setw(col[i]) << text[i] << setw(COL[i] - col[i]);
+	COUT << "|";
+	COUT << "\n";
+
+	for (int i = size - 6; i < size; i++)
+		COUT << "|" << setw(col[i]) << text[i] << setw(COL[i % 6] - col[i]);
+	COUT << "|";
+	COUT << "\n";
+	COUT << " ---------------------------------------------------------------------------------------------------\n";
+
+	COUT.close();
+}
+void Match::write(const string & b)
+{
+	ifstream CIN;
+	ofstream COUT;
+	COUT.open(b, ios::app | ios::out);
+	COUT << " ___________________________________________________________________________________________________\n";
+	COUT << "/ # |            Команды             |  Счет  |  Минуты   |           Победитель           |  Голы  \\\n";
+	COUT << " ---------------------------------------------------------------------------------------------------\n" ;
+
+	COUT.close();
+}
+void Match::menu_write()
+{
+	int s = 3;
+	string q = "";
+	int s2 = MATCH_COUNT;
+	bool norm_enter = false;
+	auto* menu = new string[s]{ "Выберите куда записать информацию " ,
+		"1 - ПО умолчанию, автоматически запишет в \"data.txt\"",
+		"2 - Ввод вручную пути для записи"
+	};
+	string str = "Введите путь для записи(не забудьте про расширение :) ): ";
+	switch (Menu_show(menu, s)) {
+	case 1:
+		system("cls");
+		write();
+		for (int i = 0; i < MATCH_COUNT; i++)
+			write(MATCH_POINTER[i]);
+		break;
+	case 2:
+		cout << str;
+		Enter_check(q);
+		write(q);
+		for (int i = 0; i < MATCH_COUNT; i++)
+			write(MATCH_POINTER[i], q);
+		break;
+	}
+	delete[] menu;
+}
 //  печать
 void Match::print()
 {
+	bool fin = false;
 	int i = 0, c = 0, c2 = 0, f = 0;
 	bool norm_enter = false;
 	auto* menu = new string[3]{ "Выберите вид печати: ", "1 - обычная",	"2 - по заданному номеру" },
@@ -282,11 +414,14 @@ void Match::print()
 		system("cls");
 		c2 = Menu_show(menu2, 3);
 		switch (c2) {
+		case 1:
+			i = 0;
+			break;
 		case 2:
 			i = Match::MATCH_COUNT;
 			break;
 		default:
-			i = 0;
+			fin = true;
 			break;
 		}
 		break;
@@ -306,17 +441,84 @@ void Match::print()
 		c2 = 1;
 		i = 0;
 		break;
+	default:
+		fin = true;
+		break;
 	}
-	system("cls");
-	Match::shapka();// печатаем заголовок таблички
-	for (; c2 == 2 ? i > 0 : i < Match::MATCH_COUNT; c2 == 2 ? i-- : i++)
-	{
-		if ((MATCH_POINTER[i].index_numb == f && c == 2) || c == 1)
-			cout << Match::MATCH_POINTER[i];
+	if (!fin) {
+		system("cls"); int lines = 6 + Match::MATCH_COUNT * 4;
+		string mode = "mode con cols=105 lines=" + to_string(lines);
+		system(mode.c_str());//задание размеров окна консоли
+		Match::shapka();// печатаем заголовок таблички
+		for (; c2 == 2 ? i > 0 : i < Match::MATCH_COUNT; c2 == 2 ? i-- : i++)
+		{
+			if ((MATCH_POINTER[i].index_numb == f && c == 2) || c == 1)
+				cout << Match::MATCH_POINTER[i];
+		}
+		cout << endl << "Общее количество матчей: " << Match::MATCH_COUNT << endl;
 	}
-	cout << endl << "Общее количество матчей: " << Match::MATCH_COUNT << endl;
+	
 	delete[] menu;
 	delete[] menu2;
+	
+}
+void Match::MENU()
+{
+	
+	int size = 9;
+	auto* menu = new string[size]{
+	"МЕНЮ",
+	"1 - Добавление элементов",
+	"2 - Удаление элементов",
+	"3 - Печать элементов",
+	"4 - Запись элементов в файл",
+	"5 - Фильтр элементов",
+	"6 - Упорядоченные элементы",
+	"7 - О создателе(Поле)",
+	"8 - Выход"
+	};
+	for (;;) {
+		int buf = Menu_show(menu, size);
+		switch (buf) {
+		case 1:
+			menu_add();
+			break;
+		case 2:
+			menu_del();
+			
+			break;
+		case 3:
+			print();
+			
+			break;
+		case 4:
+			menu_write();
+			
+			break;
+		case 5:
+			system("cls");
+			cout << "Здесь пока что ничего ;(" << endl;
+			
+			break;
+		case 6:	
+			system("cls");
+			cout << "Здесь пока что ничего ;(" << endl;		
+			
+			break;
+		case 7:
+			system("cls");
+			cout << "Знаю совсем немного)))))" << endl;
+			
+			break;
+		}
+
+		if (buf == 8)break;
+		else {
+			system("pause");
+			system("mode con cols=100 lines=30");//задание размеров окна консоли
+		}
+	}
+	delete[] menu;
 }
 // перегруженный оператор вывода
 ostream & operator<< (ostream& out, Match& a) {

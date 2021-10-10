@@ -33,7 +33,7 @@ enum ConsoleColor
 // функция окрашивающая принимаемую строку в серый
 void С_gray(const string& a);
 // функция которая показывает какую строку выбрали
-void choose(const string& a);
+void Choose(const string& a);
 // фунция вывода любого меню(ЮИ)
 int Menu_show(const string* arr, const int & size);
 
@@ -105,18 +105,22 @@ class Match
 	static void menu_add();	
 	static void del_match();
 	static void menu_del();
+	static void write( Match & a, const string & b = "data.txt");
+	static void write( const string & b = "data.txt");
+	static void menu_write();
 	static void print();
 	// функция окрашивающая принимаемую строку в серый
 	friend void С_gray(const string& a);
 	// функция которая показывает какую строку выбрали
-	friend void choose(const string& a);
+	friend void Choose(const string& a);
 	// фунция вывода любого меню(ЮИ)
 	friend int Menu_show(const string* arr, const int & size);
 	friend void Enter_check(int& a);
 	friend void Enter_check(string& a);
 	friend void gen_min(vector<int>& a, const int & min, const int & max);
-	friend istream& operator>>(istream& in, Match & a);
+	friend istream& operator>>(istream& in, Match & a);	
 	friend ostream& operator<< (ostream& out, Match & a);
+
 public:
 
 	
@@ -146,5 +150,5 @@ public:
 		// при разрушении одного экземпляра уменьшаем счетчик
 		MATCH_COUNT--;
 	}
-
+	static void MENU();
 };
