@@ -177,10 +177,53 @@ void Match::add_match(const int & Case)
 
 void Match::menu_add()
 {
+	int s = 3;
 	int q = 0;
-	cout << "Выберите количество добаляемых элементов" << endl;
-	cout << "1 - ПО умолчанию" << endl;
-	cout << "2 - Ввод вручную" << endl;
+	bool norm_enter = false;
+	auto* menu = new string[s]{ "Выберите количество добаляемых элементов: " ,
+		"1 - ПО умолчанию, автоматически добавляется 20 экзепляров",
+		"2 - Ввод вручную, или количества, или добавление одного, но со своими параметрами"
+	};
+	auto* menu2 = new string[s]{ "Выберите что хотите ввести вручную: " ,
+		"1 - Количество добавляемых элементов",
+		"2 - Добавить один элемент и ввести все его параметры"
+	};
+	string str = "Введите количество элементов: ";
+	switch (Menu_show(menu, s)) {
+	case 1:
+		system("cls");
+		for (int i = 0; i < 20; i++)
+			add_match();
+		break;
+	case 2:
+		system("cls");
+		switch (Menu_show(menu2, s)) {
+		case 1:
+			system("cls");
+			cout << str;
+			while (!norm_enter) {
+				Enter_check(q);
+				if (q > 0)
+				{
+					norm_enter = true;
+				}
+				else {
+					cout << "Введите число больше" << endl;
+				}
+			}
+
+			for (int i = 0; i < q; i++)
+				add_match();
+			break;
+		case 2:
+			system("cls");
+			add_match(2);
+			break;
+		}
+		break;
+	}
+	delete[] menu;
+	delete[] menu2;
 }
 
 // метод удаления матчей(удаляет последний элемент массива)
