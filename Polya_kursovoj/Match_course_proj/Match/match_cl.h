@@ -109,6 +109,17 @@ class Match
 	static void write( const string & b = "data.txt");
 	static void menu_write();
 	static void print();
+	static void sort();
+	static void menu_filtr();
+
+	//
+	static void filtr_id();
+	static void filtr_team();
+	static void filtr_goals();
+	static void filtr_mins();
+	static void filtr_win();
+
+
 	// функция окрашивающая принимаемую строку в серый
 	friend void С_gray(const string& a);
 	// функция которая показывает какую строку выбрали
