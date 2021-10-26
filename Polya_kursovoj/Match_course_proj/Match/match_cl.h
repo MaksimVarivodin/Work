@@ -62,14 +62,18 @@ void Resize(T*& arr, int & size) {
 }
 class Match
 {
-	
+	static Match* head;
+	static Match* tail;
+	static Match* buf;
+	Match* next;
+	Match* prev;
+
 	// ќЅя«ј“≈Ћ№Ќџ≈ ѕќЋя:
 	//______________________________________
 	// счетчик количества экземпл€ров
-	static Match* MATCH_POINTER;
 	static int MATCH_COUNT;
 	// номер по пор€дку
-	const int index_numb;
+	int index_numb;
 	// название комманды 1
 	string team1;
 	// название комманды 2
@@ -95,26 +99,39 @@ class Match
 
 	// перегруженный оператор () - инициализатор 
 	void operator()( vector<int >a , vector<int >b, const string& team1_name = "", const string &team2_name = "");
-	
-	static void resize(const int & a = Match::MATCH_COUNT+ 1);	
+
+	// фукнци€ поиска элемента с нужным индексом
+	static Match & ret_el(int ind);
+	// методы изменени€ размера списка
 	void match_setter();
-	int col_count(const int & a, const int & b);
 	Match& operator=(const Match& other);
-	static void shapka();
-	static void add_match(const int& Case = 1);
-	static void menu_add();	
-	static void del_match();
+
+	// методы добавлени€ узлов
+	Match* add();
+	Match* add_match(const int& Case = 1);
+	static void menu_add();
+
+	// методы удалени€ узлов
+    Match* del_match();
 	static void menu_del();
+
+	// методы печати списка на экран
+	int col_count(const int & a, const int & b);
+	static void shapka();
+	static void print();
+	static void info();
+
+	// методы записи списка в файл
+	static void menu_write();
 	static void write( Match & a, const string & b = "data.txt");
 	static void write( const string & b = "data.txt");
-	static void menu_write();
-	static void print();
-	static void sort();
-	static void menu_filtr();
 
-	//
+	// метод сортировки
+	static void sort();
+
+	// методы фильтрации
+	static void menu_filtr();
 	static void filtr_id();
-	static void filtr_team();
 	static void filtr_goals();
 	static void filtr_mins();
 	static void filtr_win();
@@ -126,22 +143,21 @@ class Match
 	friend void Choose(const string& a);
 	// фунци€ вывода любого меню(ё»)
 	friend int Menu_show(const string* arr, const int & size);
+
 	friend void Enter_check(int& a);
 	friend void Enter_check(string& a);
+
 	friend void gen_min(vector<int>& a, const int & min, const int & max);
 	friend istream& operator>>(istream& in, Match & a);	
 	friend ostream& operator<< (ostream& out, Match & a);
 
-public:
-
-	
+public:	
 	// (конструктор)инициализаци€ константной переменной класса, увеличение счетчика экземпл€ров
 	Match(const int &index) : index_numb{index} {
 		// увеличиваем статическую переменную
 		MATCH_COUNT++;
 	};
-
-	// (конструктор)инициализаци€ всех переменных класса по передаваемым аргментам
+	// (конструктор)инициализаци€ всех переменных класса по передаваемым аргументам
 	Match
 	(const int &team1, const int & team2, const string& team1_name, const string &team2_name):
 		Match {	MATCH_COUNT + 1	} 

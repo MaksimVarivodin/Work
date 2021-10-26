@@ -1,7 +1,10 @@
 #include "match_cl.h"
+
 // инициализируем статические переменные
 int Match::MATCH_COUNT = 0;
-Match* Match::MATCH_POINTER = nullptr;
+Match* Match::head = NULL;
+Match* Match::tail = NULL;
+Match* Match::buf = NULL;
 // генератор минут
 void gen_min(vector<int>& a,const int & min, const int & max)
 {
@@ -105,39 +108,24 @@ void Match::operator()(vector<int> a, vector<int> b, const string & team1_name, 
 	this->team1_minutes = a;
 	this->team2_minutes = b;
 }
+Match & Match::ret_el(int ind)
+{
+	if (ind < 1)
+		return *head;
+	else if (ind>Match::MATCH_COUNT)
+		return *tail;
+	buf = head;
+	while (buf->index_numb != ind) {
+		buf = buf->next;
+	}
+	return *buf;
+}
 // перегрузка оператора =
 Match & Match::operator=(const Match & other)
 {
 	// TODO: insert return statement here
 	this->operator()(other.team1_minutes, other.team2_minutes, other.team1, other.team2);
 	return *this;
-}
-// метод изменения размера массива
-void Match::resize(const int & a)
-{
-	int n_size = a;
-	bool smaller = a > MATCH_COUNT ? true:false;
-	Match::MATCH_COUNT = 0;
-	if (a == NULL) {
-		delete[]Match::MATCH_POINTER;
-		return;
-	}
-		Match* new_arr = new Match[n_size];
-		// не выходить за рамки текущего массива
-		if (smaller) {
-			for (int i = 0; i < n_size - 1; i++) {
-				new_arr[i] = Match::MATCH_POINTER[i];
-			}
-		}
-		else {
-			for (int i = 0; i < a; i++) {
-				new_arr[i] = Match::MATCH_POINTER[i];
-			}
-		}
-	
-	delete[]Match :: MATCH_POINTER;
-	Match::MATCH_POINTER = new_arr;
-	Match::MATCH_COUNT = n_size;
 }
 // метод добавления одного экземпляра(в конец)
 void Match::menu_add()
@@ -154,11 +142,12 @@ void Match::menu_add()
 		"2 - Добавить один элемент и ввести \nвсе его параметры"
 	};
 	string str = "Введите количество элементов: ";
+	Match::buf = tail;
 	switch (Menu_show(menu, s)) {
 	case 1:
 		system("cls");
-		for (int i = 0; i < 20; i++)
-			add_match();
+		for (int i = 0; i < 20; i++)			
+			buf = buf->add_match();			
 		break;
 	case 2:
 		system("cls");
@@ -178,11 +167,11 @@ void Match::menu_add()
 			}
 
 			for (int i = 0; i < q; i++)
-				add_match();
+				buf = buf->add_match();
 			break;
 		case 2:
 			system("cls");
-			add_match(2);
+			buf->add_match(2);
 			break;
 		}
 		break;
@@ -190,39 +179,88 @@ void Match::menu_add()
 	delete[] menu;
 	delete[] menu2;
 }
-void Match::add_match(const int & Case)
+Match * Match::add()
+{
+	buf = new Match; // выделение памяти под следующий элемент 
+	if (this == NULL && head == NULL) // Добавление нового корня
+	{
+		if (head == NULL) // если в списке нет элементов
+		{
+			head = buf;
+			tail = buf;
+		}
+		else // если нужно добавить первый \
+			 			    элемент в список, при том \
+                что там уже есть элементы
+		{
+			buf->next = head;
+			head->prev = buf;
+			head = buf;
+			buf->prev = NULL;
+			// если следующий элемент это хвост
+			if (buf->next->next == NULL) {
+				tail = buf->next;
+			}
+		}
+	}
+	else if (this == tail) {
+		if (head->next == NULL) // если в списке 1-элемент
+		{
+			tail = buf;
+			buf->prev = head;
+			head->next = buf;
+		}
+		else { // если в списке больше элементов
+			buf->prev = tail;
+			tail->next = buf;
+			tail = buf;
+		}
+	}
+	else // Добавление узла после текущего и текущий не head и не tail
+	{
+		if (buf->next != NULL) buf->next->prev = buf;
+		buf->next = this->next;
+		this->next = buf;
+		buf->prev = this;
+	}
+	return buf;
+}
+Match* Match::add_match(const int & Case)
 {
 	int i1 = rand() % 4;
 	int i2 = rand() % 4;
-	Match::resize();
+
+	this->add();
 	switch (Case) {
 	    case 1:
 			// увеличиваем массив минут на некоторое количество мест от 0 до 3
-			Match::MATCH_POINTER[Match::MATCH_COUNT - 1].team1_minutes.resize(i1);
+			Match::tail->team1_minutes.resize(i1);
 			// увеличиваем массив минут на некоторое количество мест от 0 до 3
-			Match::MATCH_POINTER[Match::MATCH_COUNT - 1].team2_minutes.resize(i2);
+			Match::tail->team2_minutes.resize(i2);
 			// генерируем минуты
-			gen_min(Match::MATCH_POINTER[Match::MATCH_COUNT - 1].team1_minutes);
+			gen_min(Match::tail->team1_minutes);
 			// генерируем минуты
-			gen_min(Match::MATCH_POINTER[Match::MATCH_COUNT - 1].team2_minutes);
+			gen_min(Match::tail->team2_minutes);
 			
-			Match::MATCH_POINTER[Match::MATCH_COUNT - 1](Match::MATCH_POINTER[Match::MATCH_COUNT - 1].team1_minutes,
-				Match::MATCH_POINTER[Match::MATCH_COUNT - 1].team2_minutes);
+			Match::tail->operator()(Match::tail->team1_minutes, Match::tail->team2_minutes);
 			// считываем и присваиваем имена комманд
-			Match::MATCH_POINTER[Match::MATCH_COUNT - 1].match_setter();		
+			Match::tail->match_setter();
 			
 			break;
 		case 2:
 			// в перегрузке автоматически считаются остальные данные
-			cin >> Match::MATCH_POINTER[Match::MATCH_COUNT - 1];			
+			cin >> *(Match::tail);
 			break;	
 		default:
 			cout << "Неправильная цифра" << endl;
 			system("pause");
 	}
-	Match buf;
-	buf = Match::MATCH_POINTER[Match::MATCH_COUNT - 2];
-	Match::MATCH_POINTER[Match::MATCH_COUNT - 2] = buf;
+	if (tail != head) {
+		*buf = *tail;
+		*tail = *buf;
+	}
+	return tail;
+
 }
 
 // метод удаления матчей(удаляет последний элемент массива)
@@ -236,12 +274,15 @@ void Match::menu_del()
 		"1 - ПО умолчанию, автоматически чистит список",
 		"2 - Ввод вручную количества удаляемых елементов"
 	};
+	Match::buf = Match::tail;
 	string str = "Введите количество элементов: ";
 	switch (Menu_show(menu, s)) {
 	case 1:
 		system("cls");
-		for (int i = 0; i < s2; i++)
-			del_match();
+		for (int i = 0; i < s2; i++) {			
+			buf = buf->del_match();
+		}
+			
 		break;
 	case 2:
 		cout << str;
@@ -256,16 +297,39 @@ void Match::menu_del()
 			}
 		}
 
-		for (int i = 0; i < q; i++)
-			add_match();
-
+		for (int i = 0; i < q; i++) {
+			buf = buf->del_match();
+		}
 		break;
 	}
 	delete[] menu;
 }
-void Match::del_match()
+
+Match* Match::del_match()
 {
-	Match::resize(Match::MATCH_COUNT - 1);
+	if (this == NULL || head == NULL) { return NULL; } // В списке нет узлов
+	if (this == head)	// Удаление корневого узла
+	{
+		head = this->next;
+		buf = head;
+		if (head == NULL)tail = NULL;
+	}
+	else if (this == tail) // 
+	{
+		this->prev->next = NULL;
+		tail = this->prev;
+		buf = tail;
+	}
+	else {
+		if (this->next != NULL) // Удаление промежуточного узла
+		{
+			this->next->prev = this->prev;
+		}
+		this->prev->next = this->next;
+		buf = this->next;
+	}
+	delete this;
+	return buf;
 }
 // методы записи в файл
 void Match::menu_write()
@@ -278,21 +342,29 @@ void Match::menu_write()
 		"1 - ПО умолчанию, автоматически запишет в \"data.txt\"",
 		"2 - Ввод вручную пути для записи"
 	};
+	Match::buf = Match::head;
 	string str = "Введите путь для записи(не забудьте про расширение :) ): ";
 	switch (Menu_show(menu, s)) {
 	case 1:
 		system("cls");
 		write();
-		for (int i = 0; i < MATCH_COUNT; i++)
-			write(MATCH_POINTER[i]);
+		for (int i = 0; i < MATCH_COUNT; i++) {
+			write(*buf);
+			if(buf!= tail)
+			buf = buf->next;
+		}
+			
 		break;
 	case 2:
 		system("cls");
 		cout << str;
 		Enter_check(q);
 		write(q);
-		for (int i = 0; i < MATCH_COUNT; i++)
-			write(MATCH_POINTER[i], q);
+		for (int i = 0; i < MATCH_COUNT; i++) {
+			write(*buf, q);
+			if (buf != tail)
+				buf = buf->next;
+		}
 		break;
 	}
 	delete[] menu;
@@ -400,12 +472,11 @@ void Match::write(const string & b)
 
 	COUT.close();
 }
-
 // печать
 void Match::print()
 {
 	bool fin = false;
-	int i = 0, c = 0, c2 = 0, f = 0;
+	int c = 0, c2 = 0, f = 0;
 	bool norm_enter = false;
 	auto* menu = new string[3]{ "Выберите вид печати: ", "1 - обычная",	"2 - по заданному номеру" },
 		*menu2 = new string[3]{ "Выберите порядок:","1 - прямой","2 - обратный" };
@@ -416,15 +487,8 @@ void Match::print()
 		system("cls");
 		c2 = Menu_show(menu2, 3);
 		switch (c2) {
-		case 1:
-			i = 0;
-			break;
-		case 2:
-			i = Match::MATCH_COUNT;
-			break;
-		default:
-			fin = true;
-			break;
+		case 1:	Match::buf = Match::head;	break;
+		case 2:	Match::buf = Match::tail;	break;
 		}
 		break;
 	case 2:
@@ -441,9 +505,6 @@ void Match::print()
 			}
 		}
 		c2 = 1;
-		i = 0;
-		break;
-	default:
 		fin = true;
 		break;
 	}
@@ -452,16 +513,26 @@ void Match::print()
 		string mode = "mode con cols=105 lines=" + to_string(lines);
 		system(mode.c_str());//задание размеров окна консоли
 		Match::shapka();// печатаем заголовок таблички
-		for (; c2 == 2 ? i > 0 : i < Match::MATCH_COUNT; c2 == 2 ? i-- : i++)
-		{
-			if ((MATCH_POINTER[i].index_numb == f && c == 2) || c == 1)
-				cout << Match::MATCH_POINTER[i];
+		while (buf !=  NULL) {
+			cout << *buf;
+			buf = (c2 == 1 ? buf->next : buf->prev);
 		}
 		cout << endl << "Общее количество матчей: " << Match::MATCH_COUNT << endl;
+	}
+	else {
+		system("cls"); int lines = 9;
+		string mode = "mode con cols=105 lines=" + to_string(lines);
+		system(mode.c_str());//задание размеров окна консоли
+		Match::shapka();// печатаем заголовок таблички
+		cout << buf->ret_el(f);
 	}
 	
 	delete[] menu;
 	delete[] menu2;	
+}
+void Match::info()
+{
+	cout << "Поліна Карлаш\nОПК-329" << endl;
 }
 // сортировка
 void Match::sort()
@@ -470,63 +541,188 @@ void Match::sort()
 	string mode = "mode con cols=105 lines=" + to_string(lines);
 	system(mode.c_str());//задание размеров окна консоли
 	int * ind = new int[Match::MATCH_COUNT];
-	for (int i = 0; i < Match::MATCH_COUNT; i++)
+	buf = head;
+	for (int i = 1; i < Match::MATCH_COUNT+ 1; i++)
 	{
-		ind[i] = i;
+		ind[i - 1] = i;
 	} 
-	for (int i = 1; i < Match::MATCH_COUNT; i++)
-	{
+	for (int i = 0; i < Match::MATCH_COUNT; i++)	{
 	
-		for (int j = i; j > 0 && Match::MATCH_POINTER[ind[j- 1]].teams_count > Match::MATCH_POINTER[ind[j]].teams_count; j--) {
+		for (int j = i; j > 0 && buf->ret_el(ind[j - 1]).teams_count >  buf->ret_el(ind[j]).teams_count; j--) {
 			swap(ind[j - 1], ind[j]);
 		}
 	}
 	shapka();
 	for (int i = 0; i < Match::MATCH_COUNT; i++)
 	{
-	   cout << Match::MATCH_POINTER[ind[i]];
+	   cout << buf->ret_el(ind[i]);
 	}
 	delete[] ind;
 }
 // фильтры
 void Match::menu_filtr()
 {
-	int size = 6;
-	auto* menu = new string[size]{
+	int size = 5;
+	string* menu = new string[size]{
 		"Выберите фильтр: ",
 		"1 - По номерам",
-		"2 - По названиям команд",
-		"3 - По количеству голов",
-		"4 - По минутам",
-		"5 - По победителям",
+		"2 - По количеству голов",
+		"3 - По минутам",
+		"4 - По победителям",
 	};
+	system("cls"); int lines = 6 + Match::MATCH_COUNT * 3;
+	string mode = "mode con cols=105 lines=" + to_string(lines);
+	system(mode.c_str());
 	switch (Menu_show(menu, size)) {
-	case 1: system("cls"); filtr_id(); break;
-	case 2: system("cls"); filtr_team(); break;
-	case 3: system("cls"); filtr_goals(); break;
-	case 4: system("cls"); filtr_mins(); break;
-	case 5: system("cls"); filtr_win(); break;
+	case 1: filtr_id(); break;
+	case 2: filtr_goals(); break;
+	case 3: filtr_mins(); break;
+	case 4: filtr_win(); break;
 	}
 	delete[] menu;
 }
 void Match::filtr_id()
 {
 	int a;
-	cout << "";
-
+	string *menu = new string [3]{
+	"Выберите как фильтровать(элементы с введенным номером выводятся)", 
+	"1- Больше введенного номера",
+	"2- Меньше введенного номера"
+	};
+	cout << "Введите число: ";
 	Enter_check(a);
-}
-void Match::filtr_team()
-{
+
+	switch (Menu_show(menu, 3)) {
+	case 1: *buf = buf->ret_el(a);
+		shapka();
+		while (buf != NULL) {
+			cout << *buf;
+			buf = buf->next;
+		}
+			break;
+	case 2: buf = head;
+		shapka();
+		while ( buf->index_numb!= a+1) {
+			cout << *buf;
+			buf = buf->next;
+		}
+		break;
+	}
+	delete[] menu;
 }
 void Match::filtr_goals()
 {
+	int a;
+	string *menu = new string[3]{
+		"Выберите как фильтровать(элементы с введенным количеством голов выводятся)",
+		"1- Больше введенного количества голов",
+		"2- Меньше введенного количества голов"
+	};
+	cout << "Введите число: ";
+	Enter_check(a);
+	if (a > 6) {
+		cout << "Введено слишком большое число" << endl;
+		return;
+	}
+	else  if (a < 0) {
+		cout << "Введено слишком маленькое число" << endl;
+		return;
+	}
+	buf = head;
+	int k = Menu_show(menu, 3);
+	shapka();
+	while (buf != NULL) {
+		switch (k) {
+		case 1:
+			if (buf->teams_count >= a)
+			    cout << *buf;
+		break;
+		case 2:
+			if (buf->teams_count <= a)
+				cout << *buf;
+			break;
+		}		
+		buf = buf->next;
+	}
+	delete[] menu;
 }
 void Match::filtr_mins()
 {
+	buf = head;
+	string *menu = new string[3]{
+		"Выберите как фильтровать:",
+		"1- Вывести матчи где голы забиты в первом тайме",
+		"2- Вывести матчи где голы забиты во втором тайме"
+	};
+	int k = Menu_show(menu, 3);
+	bool check = false;
+	shapka();
+	while (buf != NULL) {
+		if (buf->teams_count > 0) {
+			
+			if (buf->team1_minutes.size() > 0) {
+				switch (k) {
+				case 1:
+					if (buf->team1_minutes[buf->team1_minutes.size() - 1]<= 45 )
+						check = true;
+					break;
+				case 2:
+					if (buf->team1_minutes[0]>= 46)
+						check = true;
+					break;
+				}
+			}
+			if (buf->team2_minutes.size() > 0) {
+				switch (k) {
+				case 1:
+					if (buf->team1_minutes[buf->team2_minutes.size() - 1] <= 45)
+						check = true;
+					break;
+				case 2:
+					if (buf->team2_minutes[0] >= 46)
+						check = true;
+					break;
+				}
+			}
+		}
+		if (check) {
+			cout << *buf;
+		}
+		
+		buf = buf->next;
+	}
+	delete[] menu;
 }
 void Match::filtr_win()
 {
+	buf = head;
+	string *menu = new string[4]{
+		"Выберите как фильтровать:",
+		"1- Вывести матчи где победитель 1-я команда",
+		"2- Вывести матчи где победитель 2-я команда",
+		"3- Вывести матчи где никто не победил"
+	};
+	int k = Menu_show(menu, 4);
+	shapka();
+	while (buf != NULL) {
+		switch (k) {
+		case 1:
+			if (buf->first_team_win)
+				cout << *buf;
+			break;
+		case 2:
+			if (buf->second_team_win)
+				cout << *buf;
+			break;
+		case 3:
+			if ((!buf->first_team_win) && !(buf->second_team_win))
+				cout << *buf;
+			break;
+		}
+
+		buf = buf->next;
+	}
+	delete[] menu;
 }
 // перегруженный оператор вывода
 ostream & operator<< (ostream& out, Match& a) {
@@ -685,38 +881,19 @@ void Match::MENU()
 	for (;;) {
 		int buf = Menu_show(menu, size);
 		switch (buf) {
-		case 1:
-			menu_add();
-			break;
-		case 2:
-			menu_del();
-			break;
-		case 3:
-			print();
-			break;
-		case 4:
-			menu_write();
-			break;
-		case 5:
-			system("cls");
-			cout << "Здесь пока что ничего ;(" << endl;
-
-			break;
-		case 6:
-			system("cls");
-			cout << "Экспериментальный метод" << endl;
-			sort();
-			break;
-		case 7:
-			system("cls");
-			cout << "Знаю совсем немного)))))" << endl;
-
+		case 1:	menu_add();	break;
+		case 2:	menu_del();	break;
+		case 3:	print(); break;
+		case 4: menu_write(); break;
+		case 5:	menu_filtr(); break;
+		case 6: sort();	break;
+		case 7:	system("cls"); info();
 			break;
 		}
 		if (buf == 8)break;
 		else {
 			system("pause");
-			system("mode con cols=50 lines=10");//задание размеров окна консоли
+			system("mode con cols=60 lines=15");//задание размеров окна консоли
 		}
 	}
 	delete[] menu;
