@@ -7,6 +7,8 @@
 #include <fstream>
 #include <Windows.h>
 #include <conio.h>
+#include <thread>
+#include <chrono>
 using namespace std;
 // набор величин, которые необходимы при окрашивании текста и его фона, \
    номера вставляются в структуру управляющую цветами 
@@ -36,7 +38,8 @@ void С_gray(const string& a);
 void Choose(const string& a);
 // фунция вывода любого меню(ЮИ)
 int Menu_show(const string* arr, const int & size);
-
+// изображение мяча
+void ball();
 // функция расширения массивов
 template<typename T>
 void Resize(T*& arr, int & size);
@@ -91,6 +94,8 @@ class Match
 	bool second_team_win;	
 	// общее количество голов
 	int teams_count;
+	// все голы во всех матчах
+	static int ALL_COUNTS;
 	//_______________________________________
 	
 
@@ -124,7 +129,7 @@ class Match
 	// методы записи списка в файл
 	static void menu_write();
 	static void write( Match & a, const string & b = "data.txt");
-	static void write( const string & b = "data.txt");
+	static void write(const string & b = "data.txt", const int & Case = 1);
 
 	// метод сортировки
 	static void sort();
@@ -135,8 +140,12 @@ class Match
 	static void filtr_goals();
 	static void filtr_mins();
 	static void filtr_win();
-
-
+	// редактирование
+	static void edit();
+	void edit_teams();
+	void edit_goals();
+	void edit_mins();
+	static void recalc_ALL_COUNTS();
 	// функция окрашивающая принимаемую строку в серый
 	friend void С_gray(const string& a);
 	// функция которая показывает какую строку выбрали

@@ -1,4 +1,33 @@
 #include "match_cl.h"
+// функци€ рисовки м€ча
+void ball() {
+	ifstream CIN;
+	ofstream COUT;
+	string path1 = "ball.txt";
+	// открываем файл дл€ записи, на случай если он не создан
+	COUT.open(path1, ios::app);
+	COUT.close();
+	// открываем файл дл€ чтени€, чтобы получить названи€ комманд
+	CIN.open(path1, ios::app | ios::in);
+	// если не открылось, то ошибка
+	if (!CIN.is_open()) { cout << "Error!"; }
+	else {
+		int size = 0;
+		string* a = new string[size];
+		// пока не конец файла
+		while (!CIN.eof()) {
+			// измен€ем размер массива стринг
+			Resize(a, size);
+			// инициализируем элемент массива
+			a[size - 1] = "";
+			// считываем в него строку
+			getline(CIN, a[size - 1]);
+			cout << a[size - 1]<< endl;
+		}
+		delete[] a;
+	}
+	CIN.close();
+}
 // фукнци€ проверки ввода
 void Enter_check(string & a) {
 	string b;
@@ -11,7 +40,7 @@ void Enter_check(int & a) {
 	while (!ready) // цикл продолжаетс€ до тех пор, пока пользователь не введет корректное значение
 	{
 		string b;
-		cin >> b;
+		getline(cin, b);
 		try
 		{
 			a = stoi(b);
